@@ -6,16 +6,16 @@ const writeFilePromise = util.promisify(writeFile);
 
 
 const startTask = async () => {
-    try {
-        const first = await readFilePromise('./content/first.txt', 'utf8')
-        console.log(first);
+  try {
+    const first = await readFilePromise('./content/first.txt', 'utf8')
+    console.log(first);
 
-        const second = await readFilePromise('./content/second.txt', 'utf8')
-        console.log(second);
-        
-        await writeFilePromise('./content/result-sync-await.txt', `result from writeFileSync: ${first} ${second}`)
+    const second = await readFilePromise('./content/second.txt', 'utf8')
+    console.log(second);
 
-    } catch (error) { console.log(error);}
+    await writeFilePromise('./content/result-sync-await.txt', `result from writeFileSync: ${first} ${second}`)
+
+  } catch (error) { console.log(error); }
 
 
 
