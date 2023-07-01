@@ -1,0 +1,13 @@
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+//This callback function takes two parameters: req (short for request) and res (short for response). 
+//The callback gets executed whenever an HTTP request is made to the server.
+//Making a GET request to: '/' the homepage will return the homepage.
+  if (req.url === '/') { res.end('Welcome to the homepage'); }
+  else if (req.url === '/about') { res.end('This is the about page'); }
+  else { res.end(`<h1>OOPS!!!!</h1><br />${req.url} does not exist`); }
+});
+
+server.listen(3000, () => { console.log('Server is running on http://localhost:3000'); });
+
