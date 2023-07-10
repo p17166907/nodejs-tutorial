@@ -1,32 +1,21 @@
-const express = require('express');
-const app = express();
+const express = require('express')
+const app = express()
+let { people } = require('./data.js')
 
-// req => middleware => res
-//middleware as checkpoints that your requests pass through, 
-//where you can perform tasks, modify data, 
-//or control the flow of the request before it reaches the final route handler.
-const logger = (req, res, next) => {
-    const { method, url } = req;
-    const time = new Date().getFullYear();
-    console.log(`method: ${method}, url: ${url}`);
-    console.log(time);
-    //res.send(`middleware checkpoint ${time}`)
-    next(); // Call next to pass control to the next middleware or route handler
-};
+//static assets
+app.use(express.static('./methods-public'))
+//parse form data
+app.use(express.urlencoded({ extended: false }))
 
-app.use(logger);
-
-app.get('/', (req, res) => {
-
-
-
-    return res.status(200).send(`<h1> Home Page</h1>`)
+app.get('/api/people', (req, res) => { return res.status(200).json({ success: true, data: people }) })
+app.post('/login', (req, res) => {
+    console.log(req.body);
+    const { name } = req.body
+    if (name) { return res.status(200).send(`Welcome ${name}`) } else { return res.status(401).send(`Invalid!! Please provide a name`) }
 })
 
-app.get('/about', (req, res) => { return res.status(200).send(`<h1> About Page</h1>`) })
+
+app.all('*', (req, res) => { return res.status(404).send('<h1> Page not found</h1>') })
 
 
-
-app.all('*', (req, res) => { return res.status(404).send(`<h1> Page Not Found</h1>`) })
-
-app.listen(3000, () => { console.log(`listening on port 3000`); });
+app.listen(3000, () => { console.log('listening on port 3000'); })
