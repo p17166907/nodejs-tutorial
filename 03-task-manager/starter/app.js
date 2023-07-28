@@ -42,10 +42,7 @@ const start = async () => {
         await connectDB(connectionString);
         app.listen(port, () => { console.log(`Server is listening on port ${port}....`); });
 
-    } catch (error) {
-        console.log('error from start async function app.js', error);
-
-    }
+    } catch (error) { console.log('error from start async function app.js', error); }
 }
 start()
 
