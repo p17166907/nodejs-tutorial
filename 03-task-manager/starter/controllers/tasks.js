@@ -1,64 +1,58 @@
-// Import the Task model from the 'models' folder to interact with the 'Task' database collection.
-const Task = require('../models/Task');
+const Task = require('../models/Task'); // Interact with the 'Task' database collection.
 
-// Define controller functions for CRUD operations on tasks:
+// Utility function to handle response and error
+const handleResponse = (res, statusCode, data) => {
+    if (statusCode >= 400) { return res.status(statusCode).json({ error: data }); }
+    return res.status(statusCode).json(data);
+};
 
-// Retrieve a list of all tasks.
+// Retrieve all tasks.
 const getAllTasks = async (req, res) => {
     try {
-        const tasks = await Task.find({}) // Fetch all tasks from the database.
-        res.status(200).json({ tasks });
-    } catch (error) {
-        res.status(500).json({ msg: error }); // Handle any database errors.
-    }
+        const tasks = await Task.find({});
+        handleResponse(res, 200, { tasks });
+    } catch (error) { handleResponse(res, 500, error); }
 };
 
-// Create a new task entry in the database.
+// Create a task.
 const createTask = async (req, res) => {
     try {
-        const task = await Task.create(req.body); // Insert the new task.
-        res.status(201).json({ task }); // Return the created task.
-    } catch (error) {
-        res.status(500).json({ msg: error }); // Handle any validation or database errors.
-    }
+        const task = await Task.create(req.body);
+        handleResponse(res, 201, { task });
+    } catch (error) { handleResponse(res, 500, error); }
 };
 
-// Retrieve a task by its ID.
+// Retrieve a task by ID.
 const getTask = async (req, res) => {
     try {
-        const { id: taskId } = req.params; // Extract task ID from request parameters.
-        const task = await Task.findOne({ _id: taskId }); // Fetch the specified task.
-        if (!task) { return res.status(404).json({ error: 'Task not found' }); }
-        res.status(200).json({ task });
-    } catch (error) {
-        res.status(500).json({ error: 'Internal server error' }); // Handle any database errors.
-    }
+        const { id: taskId } = req.params;
+        const task = await Task.findOne({ _id: taskId });
+        if (!task) { handleResponse(res, 404, 'Task not found'); return; }
+        handleResponse(res, 200, { task });
+    } catch (error) { handleResponse(res, 500, 'Internal server error'); }
 };
 
-// Update an existing task by its ID.
-const updateTask = async (req, res, next) => {
+// Update a task by ID.
+const updateTask = async (req, res) => {
     const { id: taskID } = req.params;
     const task = await Task.findOneAndUpdate({ _id: taskID }, req.body, {
         new: true, // Return the updated task.
         runValidators: true, // Validate the data before updating.
     });
-    if (!task) { return res.status(404).json({ error: 'Task not found' }); }
-    res.status(200).json({ task });
+    if (!task) { handleResponse(res, 404, 'Task not found'); return; } handleResponse(res, 200, { task });
 }
 
-// Delete a task by its ID.
+// Delete a task by ID.
 const deleteTask = async (req, res) => {
     try {
-        const { id: taskId } = req.params; // Extract task ID from request parameters.
-        const task = await Task.findOneAndDelete({ _id: taskId }); // Delete the specified task.
-        if (!task) { return res.status(404).json({ error: 'Task not found' }); }
-        res.status(200).json({ task }); // Return the deleted task.
-    } catch (error) {
-        res.status(500).json({ error: 'Internal server error' }); // Handle any database errors.
-    }
+        const { id: taskId } = req.params;
+        const task = await Task.findOneAndDelete({ _id: taskId });
+        if (!task) { handleResponse(res, 404, 'Task not found'); return; }
+        handleResponse(res, 200, { task });
+    } catch (error) { handleResponse(res, 500, 'Internal server error'); }
 };
 
-// Export the controller functions to be imported elsewhere (e.g., in routes).
+// Export the controller functions.
 module.exports = {
     getAllTasks,
     createTask,
