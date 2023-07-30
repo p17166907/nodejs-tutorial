@@ -23,7 +23,6 @@ const createTask = async (req, res) => {
 
 };
 
-
 // This function handles the request to get a specific task by its ID.
 // It sends a response with status 200 and a JSON object containing the 'id' parameter from the request parameters.
 const getTask = async (req, res) => {
@@ -38,16 +37,25 @@ const getTask = async (req, res) => {
         res.status(200).json({ task });
     } catch (error) { res.status(500).json({ error: 'Internal server error' }); }
 };
+
 // This function handles the request to update a specific task by its ID.
 // It sends a response with status 200 and a simple message indicating that the task is being updated.
-const updateTask = (req, res) => {
-    res.status(200).send('Updating task here.....');
-};
+const updateTask = async (req, res, next) => {
+    const { id: taskID } = req.params
+    const task = await Task.findOneAndUpdate({ _id: taskID }, req.body, { new: true, runValidators: true, })
+    if (!task) { return res.status(404).json({ error: 'Task not found' }); }
+    res.status(200).json({ task })
+}
 
 // This function handles the request to delete a specific task by its ID.
 // It sends a response with status 200 and a simple message indicating that the task is being deleted.
-const deleteTask = (req, res) => {
-    res.status(200).send('Deleting task here.....');
+const deleteTask = async (req, res) => {
+    try {
+        const { id: taskId } = req.params
+        const task = await Task.findOneAndDelete({ _id: taskId })
+        if (!task) { return res.status(404).json({ error: 'Task not found' }); }
+        res.status(200).json({ task });
+    } catch (error) { res.status(500).json({ error: 'Internal server error' }); }
 };
 
 // Export the controller functions so they can be used in other parts of the application.
