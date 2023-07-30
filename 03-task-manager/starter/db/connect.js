@@ -1,5 +1,3 @@
-
-
 // require mongoose to access db
 const mongoose = require('mongoose');
 

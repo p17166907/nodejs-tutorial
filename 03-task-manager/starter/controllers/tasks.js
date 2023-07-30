@@ -1,64 +1,64 @@
-// Require the model for tasks. This line imports the Mongoose model for the 'Task' collection.
+// Import the Task model from the 'models' folder to interact with the 'Task' database collection.
 const Task = require('../models/Task');
 
-// Controller functions for handling tasks:
+// Define controller functions for CRUD operations on tasks:
 
-// This function handles the request to get all tasks.
-// It sends a response with status 200 and a simple message indicating that all tasks are listed here.
+// Retrieve a list of all tasks.
 const getAllTasks = async (req, res) => {
     try {
-        const tasks = await Task.find({})
+        const tasks = await Task.find({}) // Fetch all tasks from the database.
         res.status(200).json({ tasks });
-    } catch (error) { res.status(500).json({ msg: error }) }
-
+    } catch (error) {
+        res.status(500).json({ msg: error }); // Handle any database errors.
+    }
 };
 
-// This function handles the request to create a new task.
-// It uses an async function and awaits the Task model's 'create' method to insert a new task into the database based on the data in 'req.body'.
+// Create a new task entry in the database.
 const createTask = async (req, res) => {
     try {
-        const task = await Task.create(req.body);
-        res.status(201).json({ task });
-    } catch (error) { res.status(500).json({ msg: error }) }
-
+        const task = await Task.create(req.body); // Insert the new task.
+        res.status(201).json({ task }); // Return the created task.
+    } catch (error) {
+        res.status(500).json({ msg: error }); // Handle any validation or database errors.
+    }
 };
 
-// This function handles the request to get a specific task by its ID.
-// It sends a response with status 200 and a JSON object containing the 'id' parameter from the request parameters.
+// Retrieve a task by its ID.
 const getTask = async (req, res) => {
     try {
-        // Extract the 'id' parameter from the request parameters
-        const { id: taskId } = req.params;
-        // Find the task with the specified '_id' in the database
-        const task = await Task.findOne({ _id: taskId });
-        //if no task id from param matching _id in database
+        const { id: taskId } = req.params; // Extract task ID from request parameters.
+        const task = await Task.findOne({ _id: taskId }); // Fetch the specified task.
         if (!task) { return res.status(404).json({ error: 'Task not found' }); }
-        // If the task is found, send a response with status 200 and the task object as JSON
         res.status(200).json({ task });
-    } catch (error) { res.status(500).json({ error: 'Internal server error' }); }
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' }); // Handle any database errors.
+    }
 };
 
-// This function handles the request to update a specific task by its ID.
-// It sends a response with status 200 and a simple message indicating that the task is being updated.
+// Update an existing task by its ID.
 const updateTask = async (req, res, next) => {
-    const { id: taskID } = req.params
-    const task = await Task.findOneAndUpdate({ _id: taskID }, req.body, { new: true, runValidators: true, })
+    const { id: taskID } = req.params;
+    const task = await Task.findOneAndUpdate({ _id: taskID }, req.body, {
+        new: true, // Return the updated task.
+        runValidators: true, // Validate the data before updating.
+    });
     if (!task) { return res.status(404).json({ error: 'Task not found' }); }
-    res.status(200).json({ task })
+    res.status(200).json({ task });
 }
 
-// This function handles the request to delete a specific task by its ID.
-// It sends a response with status 200 and a simple message indicating that the task is being deleted.
+// Delete a task by its ID.
 const deleteTask = async (req, res) => {
     try {
-        const { id: taskId } = req.params
-        const task = await Task.findOneAndDelete({ _id: taskId })
+        const { id: taskId } = req.params; // Extract task ID from request parameters.
+        const task = await Task.findOneAndDelete({ _id: taskId }); // Delete the specified task.
         if (!task) { return res.status(404).json({ error: 'Task not found' }); }
-        res.status(200).json({ task });
-    } catch (error) { res.status(500).json({ error: 'Internal server error' }); }
+        res.status(200).json({ task }); // Return the deleted task.
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error' }); // Handle any database errors.
+    }
 };
 
-// Export the controller functions so they can be used in other parts of the application.
+// Export the controller functions to be imported elsewhere (e.g., in routes).
 module.exports = {
     getAllTasks,
     createTask,
