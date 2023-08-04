@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+require('express-async-errors')
 
 //import Routes for product
 const {router: productRouter} = require('./routes/products')
