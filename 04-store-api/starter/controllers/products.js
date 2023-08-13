@@ -18,20 +18,47 @@ const getAllProductsStatic = async (req, res) => {
 const getAllProducts = async (req, res) => {
     try {
         // Destructure and extract required query parameters
-        const { featured, company, name, sort, fields, page = 1, limit = 10 } = req.query;
+        const { featured, company, name, sort, fields, page = 1, limit = 10, numericFilters } = req.query;
+
+        //{{tskMngrURL}}/products?featured=false&company=ikea&name=wood&sort=price&fields=name,price&numericFilters=price>15
 
         // Prepare the query object based on the extracted parameters
         const queryObject = {};
+        //{{tskMngrURL}}/products?featured=false
         if (featured) { queryObject.featured = featured === 'true'; } // Convert 'featured' string to boolean
+        //{{tskMngrURL}}/products?company=ikea
         if (company) { queryObject.company = { $regex: company, $options: 'i' }; } // Case-insensitive matching
+        //{{tskMngrURL}}/products?name=wood
         if (name) { queryObject.name = { $regex: name, $options: 'i' }; } // Case-insensitive matching
+        //Mapping (operatorMap) to translate operators like '>' to MongoDB's '$gt', and so forth.
+        //{{tskMngrURL}}/products?numericFilters=price>15
+        if (numericFilters) {
+            const operatorMap = {
+                '>': '$gt',
+                '>=': '$gte',
+                '=': '$eq',
+                '<': '$lt',
+                '<=': '$lte',
+            }
+            const regEx = /\b(<|>|>=|=|<|<=)\b/g
+
+            let filters = numericFilters.replace(regEx, (match) => `-${operatorMap[match]}-`)
+            const options = ['price', 'rating']
+            filters = filters.split(',').forEach(item => {
+                const [field, operator, value] = item.split('-')
+                if (options.includes(field)) { queryObject[field] = { [operator]: Number(value) } }
+
+            });
+        }
 
         // Start constructing the query
         let query = ProductModelSchema.find(queryObject);
 
         // If 'sort' parameter is specified, apply sorting
+        //{{tskMngrURL}}/products?sort=price
         if (sort) { query = query.sort(sort.split(',').join(' ')); }
-        // If 'fields' parameter is specified, select only those fields
+        // If 'fields' parameter is specified, select only those fields to display in the results list
+        //{{tskMngrURL}}/products?fields=name
         if (fields) { query = query.select(fields.split(',').join(' ')); }
 
         // Apply pagination parameters
@@ -40,6 +67,8 @@ const getAllProducts = async (req, res) => {
 
         // Execute the query
         const products = await query;
+
+        console.log(queryObject);
 
         // Send a successful response with the products data
         res.status(200).json({ msg: 'Success', data: products, nbHits: products.length });
