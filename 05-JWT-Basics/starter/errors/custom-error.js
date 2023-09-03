@@ -2,13 +2,12 @@
 class CustomAPIError extends Error {
 
   // Constructor method that takes in a message and statusCode
-  constructor(message, statusCode) {
+  constructor(message) {
 
     // Call the constructor of the superclass (Error) with the message
     super(message);
 
-    // Attach an additional property statusCode to the error object
-    this.statusCode = statusCode;
+
   }
 }
 
