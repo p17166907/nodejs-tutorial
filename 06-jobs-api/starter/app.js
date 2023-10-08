@@ -9,6 +9,9 @@ let connectDB = require('./db/connect');
 require('dotenv').config(); // Load environment variables from '.env' file for database configuration
 // Extract database credentials from environment variables
 const { MONGO_USERNAME, MONGO_PASSWORD, MONGO_DBNAME } = process.env;
+
+const authenticateUser = require('./middleware/authentication')
+
 // Import routes
 const authRouter = require('./routes/auth');
 const jobsRouter = require('./routes/jobs');
@@ -24,7 +27,7 @@ app.use(express.json());
 // routes
 //Api routes
 app.use('/api/v1/auth', authRouter)
-app.use('/api/v1/jobs', jobsRouter)
+app.use('/api/v1/jobs', authenticateUser, jobsRouter)
 
 
 app.use(notFoundMiddleware);
