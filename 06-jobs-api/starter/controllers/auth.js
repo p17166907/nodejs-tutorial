@@ -18,25 +18,15 @@ const { BadRequestError, UnauthenticatedError } = require('../errors');
  * @throws {BadRequestError} When user creation fails.
  */
 async function register(req, res, next) {
-    try {
-        // Create a new user in the database
-        const user = await User.create({ ...req.body });
-        let { _id, name, email, createdAt, updatedAt, __v } = user;
+    // Create a new user in the database
+    const user = await User.create({ ...req.body });
+    let { _id, name, email, createdAt, updatedAt, __v } = user;
+    // Generate a JWT token for the new user
+    const token = await user.createJWT();
+    // Respond with the newly created user and a status code
+    res.status(StatusCodes.CREATED).json({ user: { _id, name, email, createdAt, updatedAt, __v }, token });
 
-        // Generate a JWT token for the new user
-        const token = await user.createJWT();
-
-        // Respond with the newly created user and a status code
-        res.status(StatusCodes.CREATED).json({ user: { _id, name, email, createdAt, updatedAt, __v }, token });
-
-    } catch (error) {
-        console.error("User creation error:", error); // Log the error for debugging
-        next(new BadRequestError('User creation failed'));
-    }
 }
-
-
-// ... (other imports and the register function remain the same)
 
 /**
  * Authenticate a user and return user data with a JWT token.

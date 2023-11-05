@@ -1,5 +1,12 @@
 require('dotenv').config();
 require('express-async-errors');
+//extra security packages
+const helmet = require('helmet'); // Helmet helps secure Express apps by setting various HTTP headers
+const cors = require('cors'); // CORS is a node.js package for providing a Connect/Express middleware that can be used to enable CORS
+const xss = require('xss-clean'); // Prevents XSS attacks by sanitizing user input
+const rateLimiter = require('express-rate-limit'); // Basic rate-limiting middleware for Express
+
+
 const express = require('express');
 const app = express();
 
@@ -16,13 +23,17 @@ const authenticateUser = require('./middleware/authentication')
 const authRouter = require('./routes/auth');
 const jobsRouter = require('./routes/jobs');
 
-
 // error handler
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 
-app.use(express.json());
-// extra packages
+// Applying security measures
+app.set('trust proxy', 1)
+app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100, }))
+app.use(express.json()); // Parse incoming JSON payloads
+app.use(helmet())
+app.use(cors())
+app.use(xss())
 
 // routes
 //Api routes
